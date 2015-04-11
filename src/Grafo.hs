@@ -10,19 +10,19 @@ instance (Show a) => Show (Grafo a) where
 
 -- Ejercicio 1
 vacio :: Grafo a
-vacio = undefined
+vacio = G [] (\n -> [])
 
 -- Ejercicio 2
 nodos :: Grafo a -> [a]
-nodos = undefined
+nodos (G ns r) = ns
 
 -- Ejercicio 3
 vecinos :: Grafo a -> a -> [a]
-vecinos = undefined
+vecinos (G ns r) n = r n
 
--- Ejercicio 4
-agNodo :: a -> Grafo a -> Grafo a
-agNodo = undefined
+-- Ejercicio 4 
+agNodo :: Eq a => a -> Grafo a -> Grafo a
+agNodo n (G ns r) = if (n `elem` ns) then (G ns r) else (G (ns ++ [n]) r) 
 
 -- Ejercicio 5
 sacarNodo :: a -> Grafo a -> Grafo a
