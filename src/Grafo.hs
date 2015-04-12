@@ -23,34 +23,21 @@ vecinos (G ns r) n = r n
 -- Ejercicio 4 
 agNodo :: Eq a => a -> Grafo a -> Grafo a
 agNodo n g@(G ns r) = if (n `elem` (nodos g)) then g else (G (ns ++ [n]) newr) 
-  where newr n' = snd (head (filter ((== n').fst) [(nodo, (vecinos g nodo)) | nodo <- nodos g] ++ [(n, [])]))
+  where newr n' = if (n' == n) then [] else r n' 
 
 -- Ejercicio 5
 sacarNodo :: Eq a => a -> Grafo a -> Grafo a
-sacarNodo n g@(G ns r) = if (n `elem` (nodos g)) then (G (filter (/=n) ns) newr) else g
-  where newr n' = snd (head (filter ((== n').fst) [(nodo, (vecinos g nodo)) | nodo <- nodos g, nodo /= n]))
-
-sacarNodoVer2 :: Eq a => a -> Grafo a -> Grafo a
-sacarNodoVer2 n (G ns r) = G (sacarNodo' ns n) (\x -> case x of
-								_ | n==x -> []
-								  | otherwise -> filter (/=n) (vecinos (G ns r) x))
-
-sacarNodo' :: Eq a => [a] -> (a -> [a])
-sacarNodo' = foldr g (const [])
-	where g x rec n = if (n==x) then (rec n) else (x:(rec n))
+sacarNodo n g@(G ns r) = if (n `elem` (nodos g)) then (G (filter (/= n) ns) newr) else g
+  where newr n' = filter (/= n) (vecinos g n')
 
 -- Ejercicio 6
 agEje :: Eq a => (a,a) -> Grafo a -> Grafo a
 agEje (n1, n2) g@(G ns r) = if (n1 `elem` (nodos g)) && (n2 `elem` (nodos g)) && (not (n2 `elem` (vecinos g n1))) then (G ns newr) else g
-  where newr n' = snd (head (filter ((== n').fst) [(nodo, (vecinos g nodo)) | nodo <- nodos g, nodo /= n1] ++ [(n1, ((vecinos g n1) ++ [n2]))]))
-
-agEjeVer2 :: Eq a => (a,a) -> Grafo a -> Grafo a
-agEjeVer2 (n1,n2) g = G (nodos g) (\n -> case n of
-								_ | n==n1 -> (vecinos g n)++[n2] 
-								  | otherwise -> vecinos g n)
+  where newr n' = if (n' == n1) then (vecinos g n1) ++ [n2] else r n' 
+  
 -- Ejercicio 7
-lineal :: [a] -> Grafo a7
-lineal = undefined
+lineal :: Eq a => [a] -> Grafo a
+lineal ns =  foldr agEje (foldl (flip agNodo) vacio ns) (zip (init ns) (tail ns))
 
 -- Ejercicio 8
 union :: Grafo a -> Grafo a -> Grafo a
