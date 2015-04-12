@@ -33,7 +33,7 @@ sacarNodo n g@(G ns r) = if (n `elem` (nodos g)) then (G (filter (/=n) ns) newr)
 -- Ejercicio 6
 agEje :: Eq a => (a,a) -> Grafo a -> Grafo a
 agEje (n1, n2) g@(G ns r) = if (n1 `elem` (nodos g)) && (n2 `elem` (nodos g)) && (not (n2 `elem` (vecinos g n1))) then (G ns newr) else g
-  where newr n' = snd (head (filter ((== n').fst) [(nodo, (vecinos g nodo)) | nodo <- nodos g, nodo /= n] ++ [(n, ((vecinos g n1) ++ [n2]))]))
+  where newr n' = snd (head (filter ((== n').fst) [(nodo, (vecinos g nodo)) | nodo <- nodos g, nodo /= n1] ++ [(n1, ((vecinos g n1) ++ [n2]))]))
 
 -- Ejercicio 7
 lineal :: [a] -> Grafo a

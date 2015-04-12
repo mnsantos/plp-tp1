@@ -37,7 +37,7 @@ agEje (n1, n2) g@(G ns r) = if (n1 `elem` (nodos g)) && (n2 `elem` (nodos g)) &&
 
 -- Ejercicio 7
 lineal :: [a] -> Grafo a
-lineal = undefined
+lineal ns =  foldr agEje (foldl (flip agNodo) vacio ns) [(n1, n2) | n1 <- (init ns), n2 <- (tail ns)]
 
 -- Ejercicio 8
 union :: Grafo a -> Grafo a -> Grafo a
