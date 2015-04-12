@@ -3,7 +3,7 @@ module Grafo (Grafo, vacio, nodos, vecinos, agNodo, sacarNodo, agEje, lineal, un
 data Grafo a = G [a] (a -> [a])
 
 instance (Show a) => Show (Grafo a) where
-	show (G n e) = "[\n" ++ concat (map (\x -> " " ++ show x ++ " -> " ++ show (e x) ++ "\n") n) ++ "]"
+  show (G n e) = "[\n" ++ concat (map (\x -> " " ++ show x ++ " -> " ++ show (e x) ++ "\n") n) ++ "]"
 
 
 -- ---------------------------------Sección 3--------- Grafos ---------------------------
@@ -42,7 +42,7 @@ lineal ns =  foldr agEje (foldl (flip agNodo) vacio ns) (zip (init ns) (tail ns)
 -- Ejercicio 8
 union :: Eq a => Grafo a -> Grafo a -> Grafo a
 union g1 g2 = G (merge (nodos g1) (nodos g2)) newr
-	where newr n = merge (vecinos g1 n) (vecinos g2 n)
+  where newr n = merge (vecinos g1 n) (vecinos g2 n)
 
 merge :: Eq a => [a] -> [a] -> [a]
 merge = foldr (\x rec ys -> if x `elem` ys then rec ys else x:(rec ys)) id
