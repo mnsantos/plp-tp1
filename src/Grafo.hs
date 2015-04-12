@@ -25,15 +25,22 @@ agNodo :: Eq a => a -> Grafo a -> Grafo a
 agNodo n (G ns r) = if (n `elem` ns) then (G ns r) else (G (ns ++ [n]) r) 
 
 -- Ejercicio 5
-sacarNodo :: a -> Grafo a -> Grafo a
-sacarNodo = undefined
+sacarNodoVer2 :: Eq a => a -> Grafo a -> Grafo a
+sacarNodoVer2 n (G ns r) = G (sacarNodo' ns n) (\x -> case x of
+								_ | n==x -> []
+								  | otherwise -> filter (/=n) (vecinos (G ns r) x))
+
+sacarNodo' :: Eq a => [a] -> (a -> [a])
+sacarNodo' = foldr g (const [])
+	where g x rec n = if (n==x) then (rec n) else (x:(rec n))
 
 -- Ejercicio 6
-agEje :: (a,a) -> Grafo a -> Grafo a
-agEje = undefined
-
+agEjeVer2 :: Eq a => (a,a) -> Grafo a -> Grafo a
+agEjeVer2 (n1,n2) g = G (nodos g) (\n -> case n of
+								_ | n==n1 -> (vecinos g n)++[n2] 
+								  | otherwise -> vecinos g n)
 -- Ejercicio 7
-lineal :: [a] -> Grafo a
+lineal :: [a] -> Grafo a7
 lineal = undefined
 
 -- Ejercicio 8
@@ -43,6 +50,8 @@ union = undefined
 -- Ejercicio 9
 clausura :: Grafo a -> Grafo a
 clausura = undefined
+
+
 
 
 
