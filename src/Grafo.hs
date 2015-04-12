@@ -54,7 +54,11 @@ lineal = undefined
 
 -- Ejercicio 8
 union :: Grafo a -> Grafo a -> Grafo a
-union = undefined
+union g1 g2 = G (merge (nodos g1) (nodos g2)) newr
+	where newr n = (vecinos g1 n) ++ (vecinos g2 n)
+
+merge :: [a] -> [a] -> [a]
+merge = foldr (\x rec ys-> x) (const [])
 
 -- Ejercicio 9
 clausura :: Grafo a -> Grafo a
