@@ -47,6 +47,9 @@ union g1 g2 = G (merge (nodos g1) (nodos g2)) newr
 merge :: Eq a => [a] -> [a] -> [a]
 merge = foldr (\x rec ys -> if x `elem` ys then rec ys else x:(rec ys)) id
 
+union2 :: Eq a => Grafo a -> Grafo a -> Grafo a
+union2 g1 g2 = foldr agEje (foldr agNodo g2 (nodos g1)) [(n1, n2) | n1 <- (nodos g1), n2 <- (vecinos g1 n1)]
+
 -- Ejercicio 9
 clausura :: Grafo a -> Grafo a
 clausura = undefined
