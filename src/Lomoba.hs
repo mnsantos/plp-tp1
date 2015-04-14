@@ -6,9 +6,15 @@ import Tipos
 -- ---------------------------------Sección 6--------- Lomoba ---------------------------
 
 -- Ejercicio 10
---foldExp :: ...
-foldExp = undefined
-
+foldExp :: (Prop -> a) -> (a -> a) -> (a -> a -> a) -> (a -> a -> a) -> (a -> a) -> (a -> a) -> Exp -> a
+foldExp fVarP fNot fOr fAnd fD fB e = 
+  let rec = foldExp fVarP fNot fOr fAnd fD fB 
+  in  case e of Var p -> fVarP p
+                Or e1 e2 -> fOr (rec e1) (rec e2)
+                And e1 e2 -> fAnd (rec e1) (rec e2)
+                D e -> fD (rec e)
+                B e -> fB (rec e)
+     
 -- Ejercicio 11
 visibilidad :: Exp -> Integer
 visibilidad = undefined
