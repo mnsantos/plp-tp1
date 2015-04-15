@@ -20,9 +20,6 @@ foldExp fVarP fNot fOr fAnd fD fB e =
 visibilidad :: Exp -> Integer
 visibilidad = foldExp (const 0) id max max (+1) (+1)
 
-(D (Var ("p"))) And (D (B (Var ("q"))))
-
-
 -- Ejercicio 12
 extraer :: Exp -> [Prop]
 extraer = foldExp (:[]) id (++) (++) id id
