@@ -9,20 +9,20 @@ import Tipos
 foldExp :: (Prop -> a) -> (a -> a) -> (a -> a -> a) -> (a -> a -> a) -> (a -> a) -> (a -> a) -> Exp -> a
 foldExp fVarP fNot fOr fAnd fD fB e = 
   let rec = foldExp fVarP fNot fOr fAnd fD fB 
-  in  case e of Var p -> fVarP p
-                Not e -> fNot (rec e)
+  in case e of  Var p -> fVarP p
+                Not e1 -> fNot (rec e1)
                 Or e1 e2 -> fOr (rec e1) (rec e2)
                 And e1 e2 -> fAnd (rec e1) (rec e2)
-                D e -> fD (rec e)
-                B e -> fB (rec e)
+                D e1 -> fD (rec e1)
+                B e1 -> fB (rec e1)
      
 -- Ejercicio 11
 visibilidad :: Exp -> Integer
-visibilidad = undefined
+visibilidad = foldExp (const 0) id max max (+1) (+1)
 
 -- Ejercicio 12
 extraer :: Exp -> [Prop]
-extraer = undefined
+extraer = foldExp (:[]) id (++) (++) id id
 
 -- Ejercicio 13
 eval :: Modelo -> Mundo -> Exp -> Bool
