@@ -22,7 +22,7 @@ visibilidad = undefined
 
 -- Ejercicio 12
 extraer :: Exp -> [Prop]
-extraer = foldExp (\x -> [x]) id (++) (++) id id
+extraer = foldExp (:[]) id (++) (++) id id
 
 -- Ejercicio 13
 eval :: Modelo -> Mundo -> Exp -> Bool
