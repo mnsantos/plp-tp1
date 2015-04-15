@@ -10,6 +10,7 @@ foldExp :: (Prop -> a) -> (a -> a) -> (a -> a -> a) -> (a -> a -> a) -> (a -> a)
 foldExp fVarP fNot fOr fAnd fD fB e = 
   let rec = foldExp fVarP fNot fOr fAnd fD fB 
   in  case e of Var p -> fVarP p
+                Not e -> fNot (rec e)
                 Or e1 e2 -> fOr (rec e1) (rec e2)
                 And e1 e2 -> fAnd (rec e1) (rec e2)
                 D e -> fD (rec e)
