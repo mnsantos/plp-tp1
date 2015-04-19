@@ -22,29 +22,29 @@ visibilidad = foldExp (const 0) id max max (+1) (+1)
 
 -- Ejercicio 12
 extraer :: Exp -> [Prop]
-extraer = foldExp (:[]) id (++) (++) id id
+extraer = foldExp (:[]) id unionSR unionSR id id
+  where unionSR xs ys = xs ++ [y | y <- ys, not (y `elem` xs)]
 
 -- Ejercicio 13
 eval :: Modelo -> Mundo -> Exp -> Bool
-eval = undefined
-
-eval' :: Modelo -> Exp -> Mundo -> Bool
-eval' modelo@(K g r) e mundo = foldExp vale not || && (\x -> foldr (eval' modelo x) [] (vecinos g mundo)) () 
-	where vale = (\x -> mundo 'elem' (r x))
-	--to DO
-
+eval (K g fv) m = foldExp fVarP fNot fOr fAnd fD fB
+  where fVarP p = m `elem`(fv p)
+        fNot e1 = not (e1)
+        fOr e1 e2 = e1 || e2
+        fAnd e1 e2 = e1 && e2
+        fD e1 = True -- fD e1 = or [(eval (K g fv) m' e1) | m' <- (vecinos g m)]
+        fB e1 = True -- fB e1 = and [(eval (K g fv) m' e1) | m' <- (vecinos g m)]
+        
 -- Ejercicio 14
 valeEn :: Exp -> Modelo -> [Mundo]
-valeEn e model@(K g r) = foldr (\x rec -> if (eval model e x) then (:) else rec) [] (nodos g))
+valeEn e model@(K g r) = foldr (\x rec -> if (eval model x e) then (x:rec) else rec) [] (nodos g)
 --to TEST
 
 -- Ejercicio 15
 quitar :: Exp -> Modelo -> Modelo
-quitar e model@(K g r) = foldr (\x rec -> if not(eval model e x) then (sacarNodo x g) else rec) model (nodos g))
+quitar e model@(K g r) = foldr (\x rec -> if not(eval model x e) then (K (sacarNodo x g) r) else rec) model (nodos g)
 --to TEST
 
 -- Ejercicio 16
 cierto :: Modelo -> Exp -> Bool
-cierto model@(K g r) e = foldr (\x rec -> if (eval model e x) then and else 
-
-cierto model@(K g r) e = foldr (\x rec -> eval model e x && rec) True (nodos g)
+cierto model@(K g r) e = foldr (\x rec -> (eval model x e) && rec) True (nodos g)
