@@ -27,8 +27,14 @@ extraer = foldExp (:[]) id unionSR unionSR id id
 
 -- Ejercicio 13
 eval :: Modelo -> Mundo -> Exp -> Bool
-eval = undefined
-
+eval (K g fv) m = foldExp fVarP fNot fOr fAnd fD fB
+  where fVarP p = m `elem`(fv p)
+        fNot e1 = not (e1)
+        fOr e1 e2 = e1 || e2
+        fAnd e1 e2 = e1 && e2
+        fD e1 = True -- fD e1 = or [(eval (K g fv) m' e1) | m' <- (vecinos g m)]
+        fB e1 = True -- fB e1 = and [(eval (K g fv) m' e1) | m' <- (vecinos g m)]
+        
 -- Ejercicio 14
 valeEn :: Exp -> Modelo -> [Mundo]
 valeEn = undefined
