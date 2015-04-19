@@ -22,7 +22,8 @@ visibilidad = foldExp (const 0) id max max (+1) (+1)
 
 -- Ejercicio 12
 extraer :: Exp -> [Prop]
-extraer = foldExp (:[]) id (++) (++) id id
+extraer = foldExp (:[]) id unionSR unionSR id id
+  where unionSR xs ys = xs ++ [y | y <- ys, not (y `elem` xs)]
 
 -- Ejercicio 13
 eval :: Modelo -> Mundo -> Exp -> Bool
