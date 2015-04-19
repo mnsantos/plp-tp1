@@ -28,15 +28,23 @@ extraer = foldExp (:[]) id (++) (++) id id
 eval :: Modelo -> Mundo -> Exp -> Bool
 eval = undefined
 
+eval' :: Modelo -> Exp -> Mundo -> Bool
+eval' modelo@(K g r) e mundo = foldExp vale not || && (\x -> foldr (eval' modelo x) [] (vecinos g mundo)) () 
+	where vale = (\x -> mundo 'elem' (r x))
+	--to DO
+
 -- Ejercicio 14
 valeEn :: Exp -> Modelo -> [Mundo]
-valeEn = undefined
+valeEn e model@(K g r) = foldr (\x rec -> if (eval model e x) then (:) else rec) [] (nodos g))
+--to TEST
 
 -- Ejercicio 15
 quitar :: Exp -> Modelo -> Modelo
-quitar = undefined
+quitar e model@(K g r) = foldr (\x rec -> if not(eval model e x) then (sacarNodo x g) else rec) model (nodos g))
+--to TEST
 
 -- Ejercicio 16
 cierto :: Modelo -> Exp -> Bool
-cierto = undefined
+cierto model@(K g r) e = foldr (\x rec -> if (eval model e x) then and else 
 
+cierto model@(K g r) e = foldr (\x rec -> eval model e x && rec) True (nodos g)
