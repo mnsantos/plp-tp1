@@ -6,26 +6,24 @@ import Tipos
 -- ---------------------------------Sección 6--------- Lomoba ---------------------------
 
 -- Ejercicio 10
-foldExp :: (Prop -> a) -> (a -> a) -> (a -> a -> a) -> (a -> a -> a) -> (a -> Exp -> a) -> (a -> Exp -> a) -> Exp -> a
+foldExp :: (Prop -> a) -> (a -> a) -> (a -> a -> a) -> (a -> a -> a) -> (Exp -> a -> a) -> (Exp -> a -> a) -> Exp -> a
 foldExp fVarP fNot fOr fAnd fD fB e = 
   let rec = foldExp fVarP fNot fOr fAnd fD fB 
   in case e of  Var p -> fVarP p
                 Not e1 -> fNot (rec e1)
                 Or e1 e2 -> fOr (rec e1) (rec e2)
                 And e1 e2 -> fAnd (rec e1) (rec e2)
-                D e1 -> fD (rec e1) e1
-                B e1 -> fB (rec e1) e1
+                D e1 -> fD e1 (rec e1) 
+                B e1 -> fB e1 (rec e1) 
      
 -- Ejercicio 11
 visibilidad :: Exp -> Integer
-visibilidad = foldExp (const 0) id max max masUno masUno
-  where masUno = flip (const (+1))
+visibilidad = foldExp (const 0) id max max (const (+1)) (const (+1))
 
 -- Ejercicio 12
 extraer :: Exp -> [Prop]
-extraer = foldExp (:[]) id unionSR unionSR loMismo loMismo
+extraer = foldExp (:[]) id unionSR unionSR (const id) (const id)
   where unionSR xs ys = xs ++ [y | y <- ys, not (y `elem` xs)]
-        loMismo = flip (const id)
 
 -- Ejercicio 13
 eval :: Modelo -> Mundo -> Exp -> Bool
@@ -34,8 +32,8 @@ eval (K g fv) m = foldExp fVarP fNot fOr fAnd fD fB
         fNot e1 = not (e1)
         fOr e1 e2 = e1 || e2
         fAnd e1 e2 = e1 && e2
-        fD e1r e1 = or [(eval (K g fv) m' e1) | m' <- (vecinos g m)]
-        fB e1r e1 = and [(eval (K g fv) m' e1) | m' <- (vecinos g m)]
+        fD e1 e1r = or [(eval (K g fv) m' e1) | m' <- (vecinos g m)]
+        fB e1 e1r = and [(eval (K g fv) m' e1) | m' <- (vecinos g m)]
         
 -- Ejercicio 14
 valeEn :: Exp -> Modelo -> [Mundo]
