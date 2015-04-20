@@ -41,14 +41,7 @@ lineal ns =  foldr agEje (foldl (flip agNodo) vacio ns) (zip (init ns) (tail ns)
 
 -- Ejercicio 8
 union :: Eq a => Grafo a -> Grafo a -> Grafo a
-union g1 g2 = G (merge (nodos g1) (nodos g2)) newr
-  where newr n = merge (vecinos g1 n) (vecinos g2 n)
-
-merge :: Eq a => [a] -> [a] -> [a]
-merge = foldr (\x rec ys -> if x `elem` ys then rec ys else x:(rec ys)) id
-
-union2 :: Eq a => Grafo a -> Grafo a -> Grafo a
-union2 g1 g2 = foldr agEje (foldr agNodo g2 (nodos g1)) [(n1, n2) | n1 <- (nodos g1), n2 <- (vecinos g1 n1)]
+union g1 g2 = foldr agEje (foldr agNodo g2 (nodos g1)) [(n1, n2) | n1 <- (nodos g1), n2 <- (vecinos g1 n1)]
   
 -- Ejercicio 9
 clausura :: Grafo a -> Grafo a
@@ -61,6 +54,3 @@ clausuraReflexiva g@(G ns _) = foldr agEje g (zip ns ns)
 puntoFijo :: Eq a => (a->a) -> (a->a)
 puntoFijo f x = head [l!!i | i<-[0..], l!!i==l!!(i+1)]
 	where l = iterate f x
-
-
-
