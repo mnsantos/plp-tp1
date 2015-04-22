@@ -1,4 +1,6 @@
-module Grafo (Grafo, vacio, nodos, vecinos, agNodo, sacarNodo, agEje, lineal, union, clausura) where
+module Grafo (Grafo, vacio, nodos, vecinos, agNodo, sacarNodo, agEje, lineal, union', clausura) where
+
+import Data.List
 
 data Grafo a = G [a] (a -> [a])
 
@@ -54,17 +56,22 @@ lineal :: Eq a => [a] -> Grafo a
 lineal ns =  foldr agEje (foldl (flip agNodo) vacio ns) (zip (init ns) (tail ns))
 
 -- Ejercicio 8
-union :: Eq a => Grafo a -> Grafo a -> Grafo a
-union g1 g2 = foldr agEje (foldr agNodo g2 (nodos g1)) [(n1, n2) | n1 <- (nodos g1), n2 <- (vecinos g1 n1)]
+union' :: Eq a => Grafo a -> Grafo a -> Grafo a
+union' g1 g2 = foldr agEje (foldr agNodo g2 (nodos g1)) [(n1, n2) | n1 <- (nodos g1), n2 <- (vecinos g1 n1)]
   
 -- Ejercicio 9
-clausura :: Grafo a -> Grafo a
-clausura = undefined
---clausura = puntoFijo clausurar clausuraReflexiva
+clausura :: Eq a => Grafo a -> Grafo a
+clausura g@(G ns r) = (G ns (\n -> map (snd) (filter ((==n).fst) (puntoFijo subconjunto componer (ejesMasReflex g)))))
 
-clausuraReflexiva :: Eq a => Grafo a -> Grafo a
-clausuraReflexiva g@(G ns _) = foldr agEje g (zip ns ns) 
+puntoFijo :: Eq a => (a -> a -> Bool) -> (a -> a) -> a -> a
+puntoFijo fStop fTran ejes = let comp = iterate fTran ejes
+                             in head [y | (x, y) <- zip comp (tail comp), fStop y x]
 
-puntoFijo :: Eq a => (a->a) -> (a->a)
-puntoFijo f x = head [l!!i | i<-[0..], l!!i==l!!(i+1)]
-	where l = iterate f x
+ejesMasReflex :: Eq a => Grafo a -> [(a,a)]
+ejesMasReflex g@(G ns r) = [(n, v) | n <- ns, v <- (r n)] `union` [(n, n) | n <- ns]
+
+subconjunto :: Eq a => [a] -> [a] -> Bool
+subconjunto xs ys = and [x `elem` ys | x <- xs]
+
+componer :: Eq a => [(a,a)] -> [(a,a)]
+componer xs = xs `union` [(x, z) | (x, y) <- xs, (y', z) <- xs, y == y']
