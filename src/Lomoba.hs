@@ -14,12 +14,12 @@ import Tipos
 foldExp :: (Prop -> a) -> (a -> a) -> (a -> a -> a) -> (a -> a -> a) -> (a -> a) -> (a -> a) -> Exp -> a
 foldExp fVarP fNot fOr fAnd fD fB e = 
   let rec = foldExp fVarP fNot fOr fAnd fD fB 
-  in case e of  Var p -> fVarP p
-                Not e1 -> fNot (rec e1)
-                Or e1 e2 -> fOr (rec e1) (rec e2)
+  in case e of  Var p     -> fVarP p
+                Not e1    -> fNot (rec e1)
+                Or e1 e2  -> fOr (rec e1) (rec e2)
                 And e1 e2 -> fAnd (rec e1) (rec e2)
-                D e1 -> fD (rec e1) 
-                B e1 -> fB (rec e1) 
+                D e1      -> fD (rec e1) 
+                B e1      -> fB (rec e1) 
      
 -- Ejercicio 11
 -- -------------------------------------------------------------------------- --
@@ -51,16 +51,17 @@ extraer = foldExp (:[]) id unionSR unionSR id id
 
 -- Ejercicio 13
 -- -------------------------------------------------------------------------- --
--- Utiliza una función auxiliar eval' que hace uso de foldExp para recursionar--
--- sobre la expresión. Lo complicado en esta función es determinar la         -- 
--- evaluación cuando las expresiones tienen los constructores Box y Diamond   --
+-- Utiliza una función auxiliar eval' que hace uso de foldExp para hacer la   --
+-- recursion sobre la expresión. Lo complicado en esta función es determinar  -- 
+-- la evaluación cuando las expresiones tienen constructores Box y Diamond    --
 -- porque es necesario verificar si las expresiones son válidas en alguno de  --
--- los mundos vecinos. En una primera aproximación hicimos que la expresión   --
--- recursiva (acumulador) de foldExp fuera un booleano.  Esto nos trajo       --
--- problemas al momento de enfrentarnos a los constructores antes mencionados --
--- ya que nos forzaba a hacer uso de recursión explicita para evaluar la      --
--- expresión en los mundos vecinos. Para solucionar este problema hicimos que --
--- el acumulador de foldExp fuera una  función que, dado un mundo, devolviera --
+-- los mundos vecinos.                                                        --
+-- En una primera aproximación hicimos que la expresión recursiva             --
+-- (acumulador) de foldExp fuera un booleano.  Esto nos trajo problemas       --
+-- al momento de enfrentarnos a los constructores antes mencionados ya que    --
+-- nos forzaba a hacer uso de recursión explicita para evaluar la expresión   --
+-- en los mundos vecinos. Para solucionar este problema hicimos que el        --
+-- acumulador de foldExp fuera una  función que, dado un mundo, devolviera    --
 -- si la expresión era válida en dicho mundo. De este modo, fD y fB solo      --
 -- debían aplicar la función acumulada a los mundos vecinos y luego hacer un  --
 -- 'and' o un 'or' dependiendo el caso.                                       --                                  
@@ -75,11 +76,11 @@ eval modelo mundo e = eval' modelo e mundo
 eval' :: Modelo -> Exp -> Mundo -> Bool
 eval' (K g fv) = foldExp fVarP fNot fOr fAnd fD fB
   where fVarP = (\p -> \mundo -> mundo `elem` (fv p))
-        fNot = (\rec -> \mundo -> not (rec mundo))
-        fOr = (\rec1 rec2 -> \mundo -> (rec1 mundo) || (rec2 mundo))
-        fAnd = (\rec1 rec2 -> \mundo -> (rec1 mundo) && (rec2 mundo))
-        fD = (\rec -> \mundo -> or [rec m | m <- (vecinos g mundo)])
-        fB = (\rec -> \mundo -> and [rec m | m <- (vecinos g mundo)])
+        fNot  = (\rec -> \mundo -> not (rec mundo))
+        fOr   = (\rec1 rec2 -> \mundo -> (rec1 mundo) || (rec2 mundo))
+        fAnd  = (\rec1 rec2 -> \mundo -> (rec1 mundo) && (rec2 mundo))
+        fD    = (\rec -> \mundo -> or [rec m | m <- (vecinos g mundo)])
+        fB    = (\rec -> \mundo -> and [rec m | m <- (vecinos g mundo)])
         
 -- Ejercicio 14
 -- -------------------------------------------------------------------------- --
