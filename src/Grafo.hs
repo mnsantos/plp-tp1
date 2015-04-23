@@ -56,8 +56,13 @@ lineal :: Eq a => [a] -> Grafo a
 lineal ns =  foldr agEje (foldl (flip agNodo) vacio ns) (zip (init ns) (tail ns))
 
 -- Ejercicio 8
+
+--union' toma dos grafos G y G' y retorna la unión de los mismos. Para ello, retorna un nuevo grafo con los nodos
+--de G y G' sin repetidos y, además, construye una nueva función r que al ser evaluada en un nodo
+--devuelve la unión de los vecinos de G y G' sin repetidos.
 union' :: Eq a => Grafo a -> Grafo a -> Grafo a
-union' g1 g2 = foldr agEje (foldr agNodo g2 (nodos g1)) [(n1, n2) | n1 <- (nodos g1), n2 <- (vecinos g1 n1)]
+union' g1 g2 = G (unionSR (nodos g1) (nodos g2)) (\n -> unionSR (vecinos g1 n) (vecinos g2 n))
+  where unionSR xs ys = xs ++ [y | y <- ys, not (y `elem` xs)]
   
 -- Ejercicio 9
 clausura :: Eq a => Grafo a -> Grafo a

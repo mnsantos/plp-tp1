@@ -38,8 +38,17 @@ extraer = foldExp (:[]) id unionSR unionSR id id
   where unionSR xs ys = xs ++ [y | y <- ys, not (y `elem` xs)]
 
 -- Ejercicio 13
---eval determina si la Expresion e es valida en el mundo de acuerdo al modelo pasado por parametro.
--- 
+--eval determina si la Expresion e es válida en el mundo de acuerdo al modelo pasado por parametro.
+--Utiliza una función auxiliar eval' que hace uso de foldExp para recursionar sobre la expresión. 
+--Lo complicado en esta función es determinar la evaluación cuando las expresiones tienen los constructores
+--Box y Diamond porque es necesario verificar si las expresiones son válidas en alguno de los mundos vecinos.
+--En una primera aproximación hicimos que la expresión recursiva (acumulador) de foldExp fuera un booleano.
+--Esto nos trajo problemas al momento de enfrentarnos a los constructores antes mencionados ya que nos forzaba a
+--hacer uso de recursión explicita para evaluar la expresión en los mundos vecinos.
+--Para solucionar este problema hicimos que el acumulador de foldExp fuera una función que dado un mundo devolviera
+--si la expresión era válida en dicho mundo. De este modo, fD y fB solo debían aplicar la función acumulada a los
+--mundos vecinos y luego hacer un 'and' o un 'or' dependiendo el caso.
+
 eval :: Modelo -> Mundo -> Exp -> Bool
 eval modelo mundo e = eval' modelo e mundo
 
