@@ -77,12 +77,5 @@ showGrafo (K g f) = g
 -- 1 -> []
 --]
 
---quitar2 FALLA ! Seria bueno analizar el porque !!!
---showGrafo (quitar2 (parse "p && []q") ejKripke) =
---[
--- 1 -> [3]
--- 3 -> []
---]
-
 --cierto ejKripke (parse "p && []q") = False
 --cierto (quitar (parse "p && []q") ejKripke) (parse "p && []q") = True
