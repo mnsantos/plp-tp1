@@ -60,7 +60,6 @@ foldRoutes fRoute fScope fMany rutas =
 	in case rutas of Route pp f  -> fRoute pp f
 	                 Scope pp rf -> fScope pp (rec rf)
 	                 Many  rfs   -> fMany (map rec rfs)
-
                    
 -- Auxiliar para mostrar patrones. Es la inversa de pattern.
 patternShow :: [PathPattern] -> String
@@ -71,8 +70,11 @@ patternShow ps = concat $ intersperse "/" ((map (\p -> case p of
 
 -- Ejercicio 6: Genera todos los posibles paths para una ruta definida.
 paths :: Routes a -> [String]
-paths = undefined
-
+paths rutas = foldRoutes fRoute fScope fMany rutas
+              where fRoute pp f = [patternShow pp]
+                    fScope pp rf = map (((patternShow pp)++"/")++) rf
+                    fMany rfs = concat rfs
+                  
 -- Ejercicio 7: Evalúa un path con una definición de ruta y, en caso de haber coincidencia, obtiene el handler correspondiente 
 --              y el contexto de capturas obtenido.
 {-
