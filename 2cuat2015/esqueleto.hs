@@ -54,8 +54,14 @@ many :: [Routes a] -> Routes a
 many l = Many l
 
 -- Ejercicio 5: Definir el fold para el tipo Routes f y su tipo. Se puede usar recursión explícita.
-foldRoutes = undefined
+foldRoutes :: ([PathPattern] -> f -> b) -> ([PathPattern] -> b -> b) -> ([b] -> b) -> Routes f -> b
+foldRoutes fRoute fScope fMany rutas =
+	let rec = foldRoutes fRoute fScope fMany
+	in case rutas of Route pp f  -> fRoute pp f
+	                 Scope pp rf -> fScope pp (rec rf)
+	                 Many  rfs   -> fMany (map rec rfs)
 
+                   
 -- Auxiliar para mostrar patrones. Es la inversa de pattern.
 patternShow :: [PathPattern] -> String
 patternShow ps = concat $ intersperse "/" ((map (\p -> case p of
