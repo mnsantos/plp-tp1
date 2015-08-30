@@ -33,7 +33,14 @@ get s p = snd (head (filter f p))
 -- Se puede usar recursión explícita.
 
 matches :: [String] -> [PathPattern] -> Maybe ([String], PathContext)
-matches ss ps = undefined
+matches s pp = matches2 s pp []
+
+matches2 :: [String] -> [PathPattern] -> PathContext -> Maybe ([String], PathContext)
+matches2 s [] pc = Just (s, pc)
+matches2 [] (_:_) _ = Nothing
+matches2 (s:ss) (Literal pp:pps) pc | s == pp   = matches2 ss pps pc
+                                    | otherwise = Nothing
+matches2 (s:ss) (Capture pp:pps) pc = matches2 ss pps ((pp, s):pc)
 
 
 -- DSL para rutas
