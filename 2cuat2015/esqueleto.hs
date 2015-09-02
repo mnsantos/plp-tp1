@@ -117,7 +117,6 @@ rutasFacultad = many [
   ],
   route "alu/:lu/aprobadas"  "ver materias aprobadas por alumno"
   ]
-                  
 
 -- Ejercicio 8: Similar a eval, pero aquí se espera que el handler sea una función que recibe como entrada el contexto 
 --              con las capturas, por lo que se devolverá el resultado de su aplicación, en caso de haber coincidencia.
