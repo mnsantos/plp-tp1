@@ -83,18 +83,15 @@ Nota: la siguiente función viene definida en el módulo Data.Maybe.
  (=<<) :: (a->Maybe b)->Maybe a->Maybe b
  f =<< m = case m of Nothing -> Nothing; Just x -> f x
 -}
-eval :: Eq a => Routes a -> String -> Maybe (a, PathContext)
+eval :: Routes a -> String -> Maybe (a, PathContext)
 eval rutas s = eval' rutas (split '/' s)
 
-eval' :: Eq a => Routes a -> [String] -> Maybe (a, PathContext)
+eval' :: Routes a -> [String] -> Maybe (a, PathContext)
 eval' rutas = foldRoutes fRoute fScope fMany rutas
-               where fRoute pp f = (\s -> (\m -> Just(f, snd(m))) =<< (matches s pp) )
-                     fScope pp rf = (\s -> (\m -> join (rf (fst(m))) m) =<< (matches s pp) )
-                     fMany rfs = (\s -> let list = filter (\rf -> (rf s)/=Nothing) rfs in 
+               where fRoute pp f = (\s -> (\(a,b) -> Just(f, b)) =<< (matches s pp))
+                     fScope pp rf = (\s -> (\(a,b)-> (\(a',b') -> Just(a',b++b')) =<< (rf a)) =<< (matches s pp))
+                     fMany rfs = (\s -> let list = filter (\rf -> isJust(rf s)) rfs in 
                       if (length list==0) then Nothing else (head list) s)
-
-join :: Maybe (a, PathContext) -> ([String], PathContext) -> Maybe (a, PathContext)
-join a b = Just( fst(fromJust a), snd(fromJust a) ++ snd(b))
 
 {-
 eval rutas s = foldRoutes fRoute fScope fMany rutas
@@ -133,7 +130,8 @@ rutasFacultad = many [
 -- Ejercicio 8: Similar a eval, pero aquí se espera que el handler sea una función que recibe como entrada el contexto 
 --              con las capturas, por lo que se devolverá el resultado de su aplicación, en caso de haber coincidencia.
 exec :: Routes (PathContext -> a) -> String -> Maybe a
-exec routes path = undefined
+exec routes path = (\(f,pc) -> Just (f pc)) =<< (eval routes path)
+
 
 -- Ejercicio 9: Permite aplicar una funci ́on sobre el handler de una ruta. Esto, por ejemplo, podría permitir la ejecución 
 --              concatenada de dos o más handlers.
