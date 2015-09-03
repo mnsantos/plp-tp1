@@ -145,4 +145,7 @@ wrap f = foldRoutes fRoute fScope fMany
 --               Las capturas usadas en los patrones se deberán llamar p0, p1, etc. 
 --               En este punto se permite recursión explícita.
 catch_all :: a -> Routes a
-catch_all h = undefined
+catch_all f = catch_all_aux f 0
+
+catch_all_aux :: a -> Int -> Routes a
+catch_all_aux f i = many [ route "" f, scope (":p" ++ show i) (catch_all_aux f (i+1)) ]
