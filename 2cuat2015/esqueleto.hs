@@ -89,8 +89,11 @@ eval rutas s = eval' rutas (split '/' s)
 eval' :: Eq a => Routes a -> [String] -> Maybe (a, PathContext)
 eval' rutas = foldRoutes fRoute fScope fMany rutas
                where fRoute pp f = (\s -> (\m -> Just(f, snd(m))) =<< (matches s pp) )
-                     fScope pp rf = (\s -> (\m -> rf (fst(m)) ) =<< (matches s pp) )
+                     fScope pp rf = (\s -> (\m -> join (rf (fst(m))) m) =<< (matches s pp) )
                      fMany rfs = (\s -> (head (filter (\rf -> (rf s)/=Nothing) rfs)) s )
+
+join :: Maybe (a, PathContext) -> ([String], PathContext) -> Maybe (a, PathContext)
+join a b = Just( fst(fromJust a), snd(fromJust a) ++ snd(b))
 
 {-
 eval rutas s = foldRoutes fRoute fScope fMany rutas
