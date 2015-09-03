@@ -84,6 +84,13 @@ Nota: la siguiente función viene definida en el módulo Data.Maybe.
  f =<< m = case m of Nothing -> Nothing; Just x -> f x
 -}
 eval :: Eq a => Routes a -> String -> Maybe (a, PathContext)
+eval rutas s = eval' rutas (split '/' s)
+
+eval' :: Eq a => Routes a -> [String] -> Maybe (a, PathContext)
+eval' rutas = foldRoutes fRoute fScope fMany rutas
+               where fRoute pp f = (\s -> (\m -> Just(f, snd(m))) =<< (matches s pp) )
+                     fScope pp rf = (\s -> (\m -> rf (fst(m)) ) =<< (matches s pp) )
+                     fMany rfs = (\s -> (head (filter (\rf -> (rf s)/=Nothing) rfs)) s )
 
 {-
 eval rutas s = foldRoutes fRoute fScope fMany rutas
@@ -94,16 +101,16 @@ eval rutas s = foldRoutes fRoute fScope fMany rutas
                                where ss = filter (Nothing /=) rfs
 -}                               
 
-eval rutas s | length can == 0 = Nothing
-             | otherwise = head can
-             where res = map (\tpp -> ((\tpc -> Just ((snd tpp),(snd tpc))) =<< (matches (split '/' s) (fst tpp)))) (tPathsPat rutas)
-                   can = filter (Nothing /=) res
+--eval rutas s | length can == 0 = Nothing
+--             | otherwise = head can
+--             where res = map (\tpp -> ((\tpc -> Just ((snd tpp),(snd tpc))) =<< (matches (split '/' s) (fst tpp)))) (tPathsPat rutas)
+--                   can = filter (Nothing /=) res
 
-tPathsPat :: Routes a -> [([PathPattern], a)]                               
-tPathsPat rutas = foldRoutes fRoute fScope fMany rutas
-                  where fRoute pp f = [(pp,f)]
-                        fScope pp rf = map (\t -> (pp++(fst t),snd t)) rf
-                        fMany rfs = concat rfs
+--tPathsPat :: Routes a -> [([PathPattern], a)]                               
+--tPathsPat rutas = foldRoutes fRoute fScope fMany rutas
+--                  where fRoute pp f = [(pp,f)]
+--                        fScope pp rf = map (\t -> (pp++(fst t),snd t)) rf
+--                        fMany rfs = concat rfs
                      
                      
                      
