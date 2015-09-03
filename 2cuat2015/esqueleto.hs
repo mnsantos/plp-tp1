@@ -90,7 +90,8 @@ eval' :: Eq a => Routes a -> [String] -> Maybe (a, PathContext)
 eval' rutas = foldRoutes fRoute fScope fMany rutas
                where fRoute pp f = (\s -> (\m -> Just(f, snd(m))) =<< (matches s pp) )
                      fScope pp rf = (\s -> (\m -> join (rf (fst(m))) m) =<< (matches s pp) )
-                     fMany rfs = (\s -> (head (filter (\rf -> (rf s)/=Nothing) rfs)) s )
+                     fMany rfs = (\s -> let list = filter (\rf -> (rf s)/=Nothing) rfs in 
+                      if (length list==0) then Nothing else (head list) s)
 
 join :: Maybe (a, PathContext) -> ([String], PathContext) -> Maybe (a, PathContext)
 join a b = Just( fst(fromJust a), snd(fromJust a) ++ snd(b))
