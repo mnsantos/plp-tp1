@@ -33,7 +33,7 @@ get s p = snd (head (filter f p))
 -- Se puede usar recursión explícita.
 
 matches :: [String] -> [PathPattern] -> Maybe ([String], PathContext)
-matches s [] = Nothing --Just ([],[])
+matches s [] = Just (s,[])
 matches s pp = matches2 s pp []
 
 matches2 :: [String] -> [PathPattern] -> PathContext -> Maybe ([String], PathContext)
@@ -88,10 +88,9 @@ eval rutas s = eval' rutas (split '/' s)
 
 eval' :: Routes a -> [String] -> Maybe (a, PathContext)
 eval' rutas = foldRoutes fRoute fScope fMany rutas
-               where fRoute pp f = (\s -> (\(a,b) -> Just(f, b)) =<< (matches s pp))
+               where fRoute pp f = (\s -> (\(a,b) -> if (null a) then Just(f, b) else Nothing) =<< (matches s pp))
                      fScope pp rf = (\s -> (\(a,b)-> (\(a',b') -> Just(a',b++b')) =<< (rf a)) =<< (matches s pp))
-                     fMany rfs = (\s -> let list = filter (\rf -> isJust(rf s)) rfs in 
-                      if (length list==0) then Nothing else (head list) s)
+                     fMany rfs = (\s -> foldr (\rf rec -> if isJust(rf s) then (rf s) else rec) Nothing rfs)
 
 {-
 eval rutas s = foldRoutes fRoute fScope fMany rutas
