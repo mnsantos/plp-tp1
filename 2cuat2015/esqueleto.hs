@@ -10,7 +10,8 @@ data Routes f = Route [PathPattern] f | Scope [PathPattern] (Routes f) | Many [R
 -- Ejercicio 1: Dado un elemento separador y una lista, se deber a partir la lista en sublistas de acuerdo a la aparicíon del separador (sin incluirlo).
 
 split :: Eq a => a -> [a] -> [[a]]
-split d = foldr f [[]] 
+split d [] = []
+split d s = foldr f [[]] s
           where f c l@(x:xs) | c == d = []:l
                              | otherwise = (c:x):xs
 
@@ -73,7 +74,7 @@ patternShow ps = concat $ intersperse "/" ((map (\p -> case p of
 paths :: Routes a -> [String]
 paths rutas = foldRoutes fRoute fScope fMany rutas
               where fRoute pp f = [patternShow pp]
-                    fScope pp rf = map (((patternShow pp)++"/")++) rf
+                    fScope pp rf = map (\r -> if null(r) then (patternShow pp) else (patternShow pp) ++ "/" ++ r) rf
                     fMany rfs = concat rfs
                   
 -- Ejercicio 7: Evalúa un path con una definición de ruta y, en caso de haber coincidencia, 
@@ -83,6 +84,7 @@ Nota: la siguiente función viene definida en el módulo Data.Maybe.
  (=<<) :: (a->Maybe b)->Maybe a->Maybe b
  f =<< m = case m of Nothing -> Nothing; Just x -> f x
 -}
+
 eval :: Routes a -> String -> Maybe (a, PathContext)
 eval rutas s = eval' rutas (split '/' s)
 
@@ -90,29 +92,7 @@ eval' :: Routes a -> [String] -> Maybe (a, PathContext)
 eval' rutas = foldRoutes fRoute fScope fMany rutas
                where fRoute pp f = (\s -> (\(a,b) -> if (null a) then Just(f, b) else Nothing) =<< (matches s pp))
                      fScope pp rf = (\s -> (\(a,b)-> (\(a',b') -> Just(a',b++b')) =<< (rf a)) =<< (matches s pp))
-                     fMany rfs = (\s -> foldr (\rf rec -> if isJust(rf s) then (rf s) else rec) Nothing rfs)
-
-{-
-eval rutas s = foldRoutes fRoute fScope fMany rutas
-               where fRoute pp f = (\m -> Just (f, (snd m))) =<< (matches (split '/' s) pp)
-                     fScope pp rf = Just ("fs", [("A","B")])
-                     fMany rfs | length ss == 0 = Nothing
-                               | otherwise = head ss
-                               where ss = filter (Nothing /=) rfs
--}                               
-
---eval rutas s | length can == 0 = Nothing
---             | otherwise = head can
---             where res = map (\tpp -> ((\tpc -> Just ((snd tpp),(snd tpc))) =<< (matches (split '/' s) (fst tpp)))) (tPathsPat rutas)
---                   can = filter (Nothing /=) res
-
---tPathsPat :: Routes a -> [([PathPattern], a)]                               
---tPathsPat rutas = foldRoutes fRoute fScope fMany rutas
---                  where fRoute pp f = [(pp,f)]
---                        fScope pp rf = map (\t -> (pp++(fst t),snd t)) rf
---                        fMany rfs = concat rfs
-                     
-                     
+                     fMany rfs = (\s -> foldr (\rf rec -> if isJust(rf s) then (rf s) else rec) Nothing rfs)         
                      
 rutasFacultad = many [
   route ""             "ver inicio",
@@ -122,9 +102,7 @@ rutasFacultad = many [
     route "aprobar"     "aprueba alumno"
   ],
   route "alu/:lu/aprobadas"  "ver materias aprobadas por alumno"
-  ]
-
-                     
+  ]                 
 
 -- Ejercicio 8: Similar a eval, pero aquí se espera que el handler sea una función que recibe como entrada el contexto 
 --              con las capturas, por lo que se devolverá el resultado de su aplicación, en caso de haber coincidencia.
