@@ -53,18 +53,9 @@ get s p = snd (head (filter f p))
 -- Se puede usar recursión explícita.
 -- Ejercicio 4
 -- -------------------------------------------------------------------------- --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
+-- Llama a una funcion auxiliar para parametrizar el PathContext.             --
+-- Ante un string vacio con PathPattern restante, o un literal que no matchee --
+-- se devuelve Nothing.
 -- -------------------------------------------------------------------------- --
 
 matches :: [String] -> [PathPattern] -> Maybe ([String], PathContext)
@@ -92,18 +83,8 @@ many l = Many l
 -- Ejercicio 5: Definir el fold para el tipo Routes f y su tipo. Se puede usar recursión explícita.
 -- Ejercicio 5
 -- -------------------------------------------------------------------------- --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
+-- Se aplica recursivamente foldRoutes sobre la Route del Scope               -–
+-- y se mapea sobre cada una de las contenidas en Many                        --
 -- -------------------------------------------------------------------------- --
 foldRoutes :: ([PathPattern] -> f -> b) -> ([PathPattern] -> b -> b) -> ([b] -> b) -> Routes f -> b
 foldRoutes fRoute fScope fMany rutas =
@@ -122,18 +103,10 @@ patternShow ps = concat $ intersperse "/" ((map (\p -> case p of
 -- Ejercicio 6: Genera todos los posibles paths para una ruta definida.
 -- Ejercicio 6
 -- -------------------------------------------------------------------------- --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
+-- Utiliza foldRoutes para recursionar y patternShow para                     -- 
+-- traducir a String las rutas.                                               --
+-- Es preciso diferenciar en la recursión cuando quedan                       --
+-- strings vacios para no appendear una ‘/’ al final.                         --
 -- -------------------------------------------------------------------------- --
 paths :: Routes a -> [String]
 paths rutas = foldRoutes fRoute fScope fMany rutas
@@ -205,7 +178,7 @@ exec routes path = (\(f,pc) -> Just (f pc)) =<< (eval routes path)
 -- Ejercicio 9
 -- -------------------------------------------------------------------------- --
 -- Wrap utiliza foldRoutes para recursionar sobre el parametro Routes.        --
--- Unicamente modifica los handlers, por lo que los paths de la ruta parametro--
+-- Unicamente altera los handlers, por lo que los paths de la ruta parametro  --
 -- no se ven modificados.                                                     --
 -- -------------------------------------------------------------------------- --
 wrap :: (a -> b) -> Routes a -> Routes b
