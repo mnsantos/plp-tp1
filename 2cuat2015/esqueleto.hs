@@ -8,7 +8,12 @@ data PathPattern = Literal String | Capture String deriving (Eq, Show)
 data Routes f = Route [PathPattern] f | Scope [PathPattern] (Routes f) | Many [Routes f] deriving Show
 
 -- Ejercicio 1: Dado un elemento separador y una lista, se deber a partir la lista en sublistas de acuerdo a la aparicíon del separador (sin incluirlo).
-
+-- Ejercicio 1
+-- -------------------------------------------------------------------------- --
+-- Utiliza foldr para hacer recursion sobre el string de forma tal que frente --
+-- a un delimitador se cree una lista nueva                                   --
+-- -------------------------------------------------------------------------- --
+                                                                           
 split :: Eq a => a -> [a] -> [[a]]
 split d [] = []
 split d s = foldr f [[]] s
@@ -16,6 +21,12 @@ split d s = foldr f [[]] s
                              | otherwise = (c:x):xs
 
 -- Ejercicio 2: A partir de una cadena que denota un patrón de URL se deberá construir la secuencia de literales y capturas correspondiente.
+-- Ejercicio 2
+-- -------------------------------------------------------------------------- --
+-- Al igual que en el ejercicio anterior, utiliza foldr para hacer recursion. --
+-- En este caso recursiona sobre el string spliteado.                         --
+-- -------------------------------------------------------------------------- --
+
 pattern :: String -> [PathPattern]
 pattern s = foldr f [] (split '/' s)
             where f c l | c == [] = l
@@ -23,6 +34,14 @@ pattern s = foldr f [] (split '/' s)
                         | otherwise = Literal c:l
 
 -- Ejercicio 3: Obtiene el valor registrado en una captura determinada. Se puede suponer que la captura está definida en el contexto.
+-- Ejercicio 3
+-- -------------------------------------------------------------------------- --
+-- Utiliza filter para filtrar las tuplas cuyo primer elemento sea el         --
+-- parametro. Luego toma la cabeza de la lista filtrada y devuelve el segundo --
+-- elemento de la tupla. En caso de haber multiples ocurrencias del parametro --
+-- solo se devuelve el valor de la primer tupla encontrada                    --
+-- -------------------------------------------------------------------------- --
+
 type PathContext = [(String, String)]
 
 get :: String -> PathContext -> String
@@ -32,6 +51,21 @@ get s p = snd (head (filter f p))
 -- Ejercicio 4: Dadas una ruta particionada y un patrón de URL, trata de aplicar el patrón a la ruta y devuelve, en caso de que
 --              la ruta sea un prefijo válido para el patrón, el resto de la ruta que no se haya llegado a consumir y el contexto capturado hasta el punto alcanzado.
 -- Se puede usar recursión explícita.
+-- Ejercicio 4
+-- -------------------------------------------------------------------------- --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+-- -------------------------------------------------------------------------- --
 
 matches :: [String] -> [PathPattern] -> Maybe ([String], PathContext)
 matches s [] = Just (s,[])
@@ -56,6 +90,21 @@ many :: [Routes a] -> Routes a
 many l = Many l
 
 -- Ejercicio 5: Definir el fold para el tipo Routes f y su tipo. Se puede usar recursión explícita.
+-- Ejercicio 5
+-- -------------------------------------------------------------------------- --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+-- -------------------------------------------------------------------------- --
 foldRoutes :: ([PathPattern] -> f -> b) -> ([PathPattern] -> b -> b) -> ([b] -> b) -> Routes f -> b
 foldRoutes fRoute fScope fMany rutas =
 	let rec = foldRoutes fRoute fScope fMany
@@ -71,6 +120,21 @@ patternShow ps = concat $ intersperse "/" ((map (\p -> case p of
   )) ps)
 
 -- Ejercicio 6: Genera todos los posibles paths para una ruta definida.
+-- Ejercicio 6
+-- -------------------------------------------------------------------------- --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+-- -------------------------------------------------------------------------- --
 paths :: Routes a -> [String]
 paths rutas = foldRoutes fRoute fScope fMany rutas
               where fRoute pp f = [patternShow pp]
@@ -84,6 +148,21 @@ Nota: la siguiente función viene definida en el módulo Data.Maybe.
  (=<<) :: (a->Maybe b)->Maybe a->Maybe b
  f =<< m = case m of Nothing -> Nothing; Just x -> f x
 -}
+-- Ejercicio 7
+-- -------------------------------------------------------------------------- --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+-- -------------------------------------------------------------------------- --
 
 eval :: Routes a -> String -> Maybe (a, PathContext)
 eval rutas s = eval' rutas (split '/' s)
@@ -106,12 +185,42 @@ rutasFacultad = many [
 
 -- Ejercicio 8: Similar a eval, pero aquí se espera que el handler sea una función que recibe como entrada el contexto 
 --              con las capturas, por lo que se devolverá el resultado de su aplicación, en caso de haber coincidencia.
+-- Ejercicio 8
+-- -------------------------------------------------------------------------- --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+-- -------------------------------------------------------------------------- --
 exec :: Routes (PathContext -> a) -> String -> Maybe a
 exec routes path = (\(f,pc) -> Just (f pc)) =<< (eval routes path)
 
 
 -- Ejercicio 9: Permite aplicar una funci ́on sobre el handler de una ruta. Esto, por ejemplo, podría permitir la ejecución 
 --              concatenada de dos o más handlers.
+-- Ejercicio 9
+-- -------------------------------------------------------------------------- --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+-- -------------------------------------------------------------------------- --
 wrap :: (a -> b) -> Routes a -> Routes b
 wrap f = foldRoutes fRoute fScope fMany
                where fRoute pp prevf = Route pp (f prevf)
@@ -121,6 +230,21 @@ wrap f = foldRoutes fRoute fScope fMany
 -- Ejercicio 10: Genera un Routes que captura todas las rutas, de cualquier longitud. A todos los patrones devuelven el mismo valor. 
 --               Las capturas usadas en los patrones se deberán llamar p0, p1, etc. 
 --               En este punto se permite recursión explícita.
+-- Ejercicio 10
+-- -------------------------------------------------------------------------- --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+--                                                                            --
+-- -------------------------------------------------------------------------- --
 catch_all :: a -> Routes a
 catch_all f = catch_all_aux f 0
 
