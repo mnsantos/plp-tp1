@@ -209,17 +209,8 @@ exec routes path = (\(f,pc) -> Just (f pc)) =<< (eval routes path)
 -- Ejercicio 9
 -- -------------------------------------------------------------------------- --
 -- Wrap utiliza foldRoutes para recursionar sobre el parametro Routes.        --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
+-- Unicamente modifica los handlers, por lo que los paths de la ruta parametro--
+-- no se ven modificados.                                                     --
 -- -------------------------------------------------------------------------- --
 wrap :: (a -> b) -> Routes a -> Routes b
 wrap f = foldRoutes fRoute fScope fMany
@@ -234,16 +225,6 @@ wrap f = foldRoutes fRoute fScope fMany
 -- -------------------------------------------------------------------------- --
 -- Catch all utiliza recursion explicita en la llamada a la funcion auxiliar. --
 -- Inicia un contador en 0 para generar las infinitas capturas.               --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
 -- -------------------------------------------------------------------------- --
 catch_all :: a -> Routes a
 catch_all f = catch_all_aux f 0
