@@ -187,7 +187,7 @@ rutasFacultad = many [
 --              con las capturas, por lo que se devolverá el resultado de su aplicación, en caso de haber coincidencia.
 -- Ejercicio 8
 -- -------------------------------------------------------------------------- --
---                                                                            --
+-- Exec utiliza eval  --
 --                                                                            --
 --                                                                            --
 --                                                                            --
@@ -208,7 +208,7 @@ exec routes path = (\(f,pc) -> Just (f pc)) =<< (eval routes path)
 --              concatenada de dos o más handlers.
 -- Ejercicio 9
 -- -------------------------------------------------------------------------- --
---                                                                            --
+-- Wrap utiliza foldRoutes para recursionar sobre el parametro Routes.        --
 --                                                                            --
 --                                                                            --
 --                                                                            --
@@ -232,8 +232,8 @@ wrap f = foldRoutes fRoute fScope fMany
 --               En este punto se permite recursión explícita.
 -- Ejercicio 10
 -- -------------------------------------------------------------------------- --
---                                                                            --
---                                                                            --
+-- Catch all utiliza recursion explicita en la llamada a la funcion auxiliar. --
+-- Inicia un contador en 0 para generar las infinitas capturas.               --
 --                                                                            --
 --                                                                            --
 --                                                                            --
