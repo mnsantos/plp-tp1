@@ -150,10 +150,10 @@ Nota: la siguiente función viene definida en el módulo Data.Maybe.
 -}
 -- Ejercicio 7
 -- -------------------------------------------------------------------------- --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
+-- Eval hace uso de foldRoutes para recursionar sobre las rutas:              --
+-- -fRoute:                                                                   --
+-- -fScope:                                                                   --
+-- -fMany:                                                                    --
 --                                                                            --
 --                                                                            --
 --                                                                            --
@@ -187,18 +187,8 @@ rutasFacultad = many [
 --              con las capturas, por lo que se devolverá el resultado de su aplicación, en caso de haber coincidencia.
 -- Ejercicio 8
 -- -------------------------------------------------------------------------- --
--- Exec utiliza eval  --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
+-- Exec utiliza eval para obtener el handler y el contexto de capturas. Luego,--
+-- aplica el handler al contexto.                                             --
 -- -------------------------------------------------------------------------- --
 exec :: Routes (PathContext -> a) -> String -> Maybe a
 exec routes path = (\(f,pc) -> Just (f pc)) =<< (eval routes path)
