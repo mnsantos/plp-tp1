@@ -150,18 +150,24 @@ Nota: la siguiente función viene definida en el módulo Data.Maybe.
 -}
 -- Ejercicio 7
 -- -------------------------------------------------------------------------- --
--- Eval hace uso de foldRoutes para recursionar sobre las rutas:              --
--- -fRoute:                                                                   --
--- -fScope:                                                                   --
--- -fMany:                                                                    --
+-- Eval hace uso de una funcion auxiliar eval' que utiliza foldRoutes para    --
+-- recursionar sobre las rutas. Cabe destacar que fRoute, fScope y fMany      --
+-- devuelven una funcion [String] -> Maybe (a, PathContext)                   --
 --                                                                            --
+-- -fRoute: aplica matches sobre el string que toma como parametro y verifica --
+-- si el resultado de esta operacion es un string vacio (completamente        --
+-- consumido). Si esto ocurre nos encontramos en un caso en donde no hay mas  --
+-- ruta por consumir con lo que cual coincidencia. Se retorna el handler y el --
+-- contexto consumido.                                                        --
+-- En caso contrario se retorna Nothing.                                      --
 --                                                                            --
+-- -fScope: concatena el contexto consumido que obtiene de hacer matches      --
+-- sobre el string que toma como parametro con el contexto consumido          --
+-- de aplicar el resto de la ruta no consumida al resultado recursivo.        --                                                
 --                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
---                                                                            --
+-- -fMany: recorre las funciones obtenidas recursivamente aplicandoles el     --
+-- string que toma como parametro. Si alguna de las funciones retorna Just    --
+-- entonces hubo coincidencia y se retrona el resultado.                      --
 -- -------------------------------------------------------------------------- --
 
 eval :: Routes a -> String -> Maybe (a, PathContext)
