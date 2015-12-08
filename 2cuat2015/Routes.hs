@@ -23,52 +23,44 @@ split d s = foldr f [[]] s
 -- Ejercicio 2: A partir de una cadena que denota un patrón de URL se deberá construir la secuencia de literales y capturas correspondiente.
 -- Ejercicio 2
 -- -------------------------------------------------------------------------- --
--- Al igual que en el ejercicio anterior, utiliza foldr para hacer recursion. --
--- En este caso recursiona sobre el string spliteado.                         --
+-- Utilizamos map para mapear cada string a una captura o literal segun       --
+-- corresponda.                                                               --
 -- -------------------------------------------------------------------------- --
 
 pattern :: String -> [PathPattern]
-pattern s = foldr f [] (split '/' s)
-            where f c l | c == [] = l
-                        | head c == ':' = Capture (tail c):l
-                        | otherwise = Literal c:l
+pattern s = map (\x -> if head x == ':' then Capture (tail x) else Literal x) (filter (/="") (split '/' s))
 
 -- Ejercicio 3: Obtiene el valor registrado en una captura determinada. Se puede suponer que la captura está definida en el contexto.
 -- Ejercicio 3
 -- -------------------------------------------------------------------------- --
--- Utiliza filter para filtrar las tuplas cuyo primer elemento sea el         --
--- parametro. Luego toma la cabeza de la lista filtrada y devuelve el segundo --
--- elemento de la tupla. En caso de haber multiples ocurrencias del parametro --
--- solo se devuelve el valor de la primer tupla encontrada                    --
+-- Utiliza lookup para hallar el valor asociado a una captura determinada.    --
+-- Como esta funcion retorna Maybe utilizamos fromJust para obtener el valor. --
 -- -------------------------------------------------------------------------- --
 
 type PathContext = [(String, String)]
 
 get :: String -> PathContext -> String
-get s p = snd (head (filter f p))
-          where f tupla = (fst tupla) == s
+get s p = fromJust (lookup s p)
 
 -- Ejercicio 4: Dadas una ruta particionada y un patrón de URL, trata de aplicar el patrón a la ruta y devuelve, en caso de que
 --              la ruta sea un prefijo válido para el patrón, el resto de la ruta que no se haya llegado a consumir y el contexto capturado hasta el punto alcanzado.
 -- Se puede usar recursión explícita.
 -- Ejercicio 4
 -- -------------------------------------------------------------------------- --
--- Llama a una funcion auxiliar para parametrizar el PathContext.             --
--- Ante un string vacio con PathPattern restante, o un literal que no matchee --
--- se devuelve Nothing.
+-- Llama a una funcion auxiliar 'join' que agrega elementos al PathContext    --
+-- obtenido recursivamente.                                                   --
 -- -------------------------------------------------------------------------- --
 
 matches :: [String] -> [PathPattern] -> Maybe ([String], PathContext)
 matches s [] = Just (s,[])
-matches s pp = matches2 s pp []
+matches [] _ = Nothing
+matches (s:ss) (Literal pp:pps) | s == pp   = matches ss pps
+                                | otherwise = Nothing
+matches (s:ss) (Capture pp:pps) = join (pp, s) (matches ss pps)
 
-matches2 :: [String] -> [PathPattern] -> PathContext -> Maybe ([String], PathContext)
-matches2 [] (_:_) _ = Nothing
-matches2 s [] pc = Just (s, pc)
-matches2 (s:ss) (Literal pp:pps) pc | s == pp   = matches2 ss pps pc
-                                    | otherwise = Nothing
-matches2 (s:ss) (Capture pp:pps) pc = matches2 ss pps ((pp, s):pc)
-
+join :: (String, String) -> Maybe ([String], PathContext) -> Maybe ([String], PathContext)
+join _ Nothing = Nothing
+join t (Just(s,pc)) = Just(s,t:pc)  
 
 -- DSL para rutas
 route :: String -> a -> Routes a
@@ -150,17 +142,7 @@ eval' :: Routes a -> [String] -> Maybe (a, PathContext)
 eval' rutas = foldRoutes fRoute fScope fMany rutas
                where fRoute pp f = (\s -> (\(a,b) -> if (null a) then Just(f, b) else Nothing) =<< (matches s pp))
                      fScope pp rf = (\s -> (\(a,b)-> (\(a',b') -> Just(a',b++b')) =<< (rf a)) =<< (matches s pp))
-                     fMany rfs = (\s -> foldr (\rf rec -> if isJust(rf s) then (rf s) else rec) Nothing rfs)         
-                     
-rutasFacultad = many [
-  route ""             "ver inicio",
-  route "ayuda"        "ver ayuda",
-  scope "materia/:nombre/alu/:lu" $ many [
-    route "inscribir"   "inscribe alumno",
-    route "aprobar"     "aprueba alumno"
-  ],
-  route "alu/:lu/aprobadas"  "ver materias aprobadas por alumno"
-  ]                 
+                     fMany rfs = (\s -> foldr (\rf rec -> if isJust(rf s) then (rf s) else rec) Nothing rfs)                        
 
 -- Ejercicio 8: Similar a eval, pero aquí se espera que el handler sea una función que recibe como entrada el contexto 
 --              con las capturas, por lo que se devolverá el resultado de su aplicación, en caso de haber coincidencia.
@@ -182,10 +164,7 @@ exec routes path = (\(f,pc) -> Just (f pc)) =<< (eval routes path)
 -- no se ven modificados.                                                     --
 -- -------------------------------------------------------------------------- --
 wrap :: (a -> b) -> Routes a -> Routes b
-wrap f = foldRoutes fRoute fScope fMany
-               where fRoute pp prevf = Route pp (f prevf)
-                     fScope pp rf = Scope pp rf
-                     fMany rfs = many rfs
+wrap f = foldRoutes (\pp prevf -> Route pp (f prevf)) Scope Many 
 
 -- Ejercicio 10: Genera un Routes que captura todas las rutas, de cualquier longitud. A todos los patrones devuelven el mismo valor. 
 --               Las capturas usadas en los patrones se deberán llamar p0, p1, etc. 

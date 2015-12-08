@@ -25,7 +25,15 @@ allTests = test [
 	"eval" ~: testsEval,
 	"evalWrap" ~: testsEvalWrap,
 	"evalCtxt"~: testsEvalCtxt,
-	"execEntity" ~: testsExecEntity
+	"execEntity" ~: testsExecEntity,
+	-- tests agregados --
+	"split" ~: testSplit,
+	"testPattern2" ~: testPattern2,
+	"testGet" ~: testGet,
+	"testMatches2" ~: testMatches2,
+	"testPaths2" ~: testPaths2,
+	"testEval2" ~: testEval2,
+	"testWrap2" ~: testWrap2
 	]
 
 splitSlash = split '/'
@@ -38,7 +46,6 @@ testsPattern = test [
 	pattern "/" ~=? [],
 	pattern "lit1/:cap1/:cap2/lit2/:cap3" ~=? [Literal "lit1", Capture "cap1", Capture "cap2", Literal "lit2", Capture "cap3"]
 	]
-
 
 testsMatches = test [
 	Just (["tpf"],[("nombreMateria","plp")]) ~=? matches (splitSlash "materias/plp/tpf") (pattern "materias/:nombreMateria")
@@ -113,3 +120,62 @@ testsExecEntity = test [
 	Just "post#show" ~=? exec path5 "post/35",
 	Just "category#create of 7" ~=? exec path5 "category/7/create"
 	]
+
+-- Nuestros tests --
+
+testSplit = test [
+	splitSlash "/foo/bar/" ~=? ["", "foo", "bar", ""],
+	splitSlash "//" ~=? ["","",""]
+	]
+
+testPattern2 = test [
+	pattern "/lit1/:cap1/:cap2/lit2/:cap3/" ~=? [Literal "lit1", Capture "cap1", Capture "cap2", Literal "lit2", Capture "cap3"],
+	pattern "" ~=? []
+	]
+
+testGet = test [
+	get "nombre" [("nombre","plp"), ("lu","007−1")] ~=? "plp",
+	get "n" [("l","plp"), ("lu","007−1"), ("n", "plp")] ~=? "plp",
+	get "n" [("l","plp"), ("lu","007−1"), ("n", "plp1"), ("n", "plp2")] ~=? "plp1"
+	]
+
+
+testMatches2 = test [
+	Just (["alu","007−1"] ,[("nombre","plp")]) ~=? matches ["materia","plp","alu","007−1"] [ Literal "materia",Capture "nombre"],
+	Nothing ~=? matches ["otra","ruta"] [ Literal "ayuda"],
+	Just([],[]) ~=? matches ["otra","ruta"] [ Literal "otra", Literal "ruta" ],
+	Just([],[("n","mas")]) ~=? matches ["otra","ruta","mas"] [ Literal "otra", Literal "ruta", Capture "n" ],
+	Nothing ~=? matches [] [Literal "algo"]
+	]
+
+path6 = many [
+  route ""             "ver inicio",
+  route "a"            "ver ayuda",
+  scope "materia/:nombre/alu/:lu" $ many [
+    route "inscribir"   "inscribe alumno",
+    scope "a" $ many [
+    	route "b" "",
+    	route ":c" "hola"
+    ],
+    route "aprobar"     "aprueba alumno"
+  ],
+  route "alu/:lu/aprobadas"  "ver materias aprobadas por alumno"
+  ]
+
+testPaths2 = test [
+	paths rutasFacultad ~=? ["","ayuda","materia/:nombre/alu/:lu/inscribir", "materia/:nombre/alu/:lu/aprobar","alu/:lu/aprobadas"],
+	paths path6 ~=? ["","a","materia/:nombre/alu/:lu/inscribir","materia/:nombre/alu/:lu/a/b","materia/:nombre/alu/:lu/a/:c","materia/:nombre/alu/:lu/aprobar","alu/:lu/aprobadas"]
+	]
+
+testEval2 = test [
+	Just ("ver materias aprobadas por alumno" ,[("lu","007−01")]) ~=? eval rutasFacultad "alu/007−01/aprobadas",
+	Just ("hola",[("nombre","juan"),("lu","413-11"),("c","blabla")]) ~=? eval path6 "materia/juan/alu/413-11/a/blabla"
+	]
+
+testWrap2 = test [
+	Just (True,[("nombre","juan"),("lu","413-11")]) ~=? eval (wrap null path6) "materia/juan/alu/413-11/a/b"
+	]
+
+
+
+
