@@ -33,7 +33,8 @@ allTests = test [
 	"testMatches2" ~: testMatches2,
 	"testPaths2" ~: testPaths2,
 	"testEval2" ~: testEval2,
-	"testWrap2" ~: testWrap2
+	"testWrap2" ~: testWrap2,
+	"testCatchAll" ~: testCatchAll
 	]
 
 splitSlash = split '/'
@@ -176,6 +177,10 @@ testWrap2 = test [
 	Just (True,[("nombre","juan"),("lu","413-11")]) ~=? eval (wrap null path6) "materia/juan/alu/413-11/a/b"
 	]
 
-
-
+testCatchAll = test [
+	["",":p0",":p0/:p1",":p0/:p1/:p2",":p0/:p1/:p2/:p3"] ~=? take 5 (paths (catch_all 42)),
+	Just (42,[("p0","cualquier") ,("p1","ruta")]) ~=? eval (catch_all 42) "cualquier/ruta",
+	Just(0) ~=? exec (catch_all length) "",
+	Just(3) ~=? exec (catch_all length) "foo/bar/baz"
+	]
 
